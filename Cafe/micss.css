@@ -1,0 +1,78 @@
+
+* {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-image: url('vista-cercana-granos-cafe-tostados-frescos-oscuros-sobre-fondo-granos-cafe_141793-27283.avif'); /* Fondo con granos de café */
+    background-size: cover;
+    background-position: center;
+    font-family: 'Arial', sans-serif;
+  }
+
+  .menu {
+    background-color: rgba(255, 228, 181, 0.95); /* Color crema semi-transparente */
+    max-width: 400px;
+    width: 90%;
+    margin: auto;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .center-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 20px;
+  }
+
+  h1 {
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+  }
+
+  .subtitulo {
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+
+  hr {
+    border: none;
+    border-top: 2px solid brown;
+    margin: 15px 0;
+  }
+
+  h2 {
+    text-align: center;
+    margin: 10px 0;
+  }
+
+  .seccion {
+    margin-bottom: 20px;
+  }
+
+  .item {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #c66a00;
+  }
+
+  .direccion {
+    text-align: center;
+    font-size: 0.8em;
+    margin-top: 5px;
+  }
