@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Escondite Inglés Regular</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .tablero {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .jugador {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      text-align: center;
+      width: 120px;
+    }
+
+    .camino {
+      display: flex;
+      flex-direction: column-reverse;
+      height: 200px;
+      width: 60px;
+      margin: 0 auto 10px auto;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #e0e0e0;
+    }
+
+    .casilla {
+      height: 20px;
+      border-top: 1px solid #bbb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .casilla:not(:empty) {
+      background: #4caf50;
+      color: white;
+    }
+
+    .botones {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .botones button {
+      padding: 6px;
+      border: none;
+      background: #1976d2;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease-in-out;
+    }
+
+    .botones button:hover {
+      background: #0d47a1;
+    }
+
+    #resultado {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    #dadoImagen {
+      display: block;
+      margin: 10px auto;
+      max-width: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Escondite Inglés</h1>
+  <div id="tablero" class="tablero"></div>
+  <div id="resultado">
+    <img id="dadoImagen" src="" alt="" style="display:none;">
+  </div>
+
+  <script>
+    const jugadores = [
+      { nombre: 'A', posicion: 0, corazon: false, accion: null },
+      { nombre: 'B', posicion: 0, corazon: false, accion: null },
+      { nombre: 'C', posicion: 0, corazon: false, accion: null }
+    ];
+
+    let dadosNegros = [
+      { nombre: 'Negro1', caras: [1, 1, 1, 1, 2, 2] },
+      { nombre: 'Negro2', caras: [1, 1, 1, 1, 0, 0] },
+      { nombre: 'Negro3', caras: [1, 1, 0, 0, 0, 0] }
+    ];
+    let dadoRojo = { nombre: 'Rojo', caras: [1, 1, 1, 1, 1, 0] };
+
+    let bolsa = [...dadosNegros, dadoRojo];
+    let negrosUsados = [];
+
+    function render() {
+      const tablero = document.getElementById("tablero");
+      tablero.innerHTML = "";
+
+      jugadores.forEach(j => {
+        const div = document.createElement("div");
+        div.className = "jugador";
+
+        const camino = document.createElement("div");
+        camino.className = "camino";
+
+        for (let i = 0; i < 10; i++) {
+          const casilla = document.createElement("div");
+          casilla.className = "casilla";
+          if (i === j.posicion) {
+            casilla.textContent = j.nombre + (j.corazon ? "💖" : "");
+          }
+          camino.appendChild(casilla);
+        }
+
+        const botones = document.createElement("div");
+        botones.className = "botones";
+        const btnAndar = document.createElement("button");
+        btnAndar.textContent = "Andar";
+        btnAndar.onclick = () => elegirAccion(j.nombre, "andar");
+        const btnParar = document.createElement("button");
+        btnParar.textContent = "Pararse";
+        btnParar.onclick = () => elegirAccion(j.nombre, "parar");
+
+        botones.appendChild(btnAndar);
+        botones.appendChild(btnParar);
+
+        div.appendChild(camino);
+        div.appendChild(document.createTextNode("Jugador " + j.nombre));
+        div.appendChild(botones);
+
+        tablero.appendChild(div);
+      });
+    }
+
+    function elegirAccion(nombre, accion) {
+      const jugador = jugadores.find(j => j.nombre === nombre);
+      jugador.accion = accion;
+
+      if (jugadores.every(j => j.accion !== null)) {
+        ejecutarTurno();
+      }
+    }
+
+    function sacarDado() {
+      if (bolsa.length === 0) {
+        bolsa = [...dadosNegros, dadoRojo];
+        negrosUsados = [];
+      }
+      const i = Math.floor(Math.random() * bolsa.length);
+      const dado = bolsa.splice(i, 1)[0];
+      if (dado.nombre !== "Rojo") negrosUsados.push(dado);
+      return dado;
+    }
+
+    function tirar(dado) {
+      const i = Math.floor(Math.random() * dado.caras.length);
+      return dado.caras[i];
+    }
+
+    function nombreADadoImg(nombre) {
+      switch (nombre) {
+        case 'Negro1': return 'dado1.png';
+        case 'Negro2': return 'dado2.png';
+        case 'Negro3': return 'dado3.png';
+        case 'Rojo': return 'rojo.png';
+        default: return '';
+      }
+    }
+
+    function ejecutarTurno() {
+      const dadoSacado = sacarDado();
+      let resultadoTexto = `<strong>Dado sacado:</strong> ${dadoSacado.nombre}<br><br>`;
+
+      // Mostrar imagen
+      const dadoImg = document.getElementById("dadoImagen");
+      dadoImg.src = nombreADadoImg(dadoSacado.nombre);
+      dadoImg.alt = dadoSacado.nombre;
+      dadoImg.style.display = 'block';
+
+      jugadores.forEach(j => {
+        let valoresTiradas = [];
+
+        if (j.accion === "parar") {
+          if (dadoSacado.nombre === "Rojo" && !j.corazon) {
+            j.corazon = true;
+            resultadoTexto += `Jugador <strong>${j.nombre}</strong> se paró y ganó un 💖<br>`;
+          }
+        } else if (j.accion === "andar") {
+          if (dadoSacado.nombre !== "Rojo") {
+            let avance = negrosUsados.map(d => {
+              const val = tirar(d);
+              valoresTiradas.push(`${d.nombre}: ${val}`);
+              return val;
+            }).reduce((a, b) => a + b, 0);
+            j.posicion = Math.min(9, j.posicion + avance);
+            resultadoTexto += `Jugador <strong>${j.nombre}</strong> anduvo → Avance: ${valoresTiradas.join(", ")} → <strong>Total: ${avance}</strong><br>`;
+          } else {
+            if (j.corazon) {
+              j.corazon = false;
+              resultadoTexto += `Jugador <strong>${j.nombre}</strong> perdió el 💖 por andar con dado rojo<br>`;
+            } else {
+              let retroceso = negrosUsados.map(d => {
+                const val = tirar(d);
+                valoresTiradas.push(`${d.nombre}: ${val}`);
+                return val;
+              }).reduce((a, b) => a + b, 0);
+              const rojo = tirar(dadoRojo);
+              valoresTiradas.push(`Rojo: ${rojo}`);
+              retroceso += rojo;
+              j.posicion = Math.max(0, j.posicion - retroceso);
+              resultadoTexto += `Jugador <strong>${j.nombre}</strong> anduvo con dado rojo → Retroceso: ${valoresTiradas.join(", ")} → <strong>Total: ${retroceso}</strong><br>`;
+            }
+          }
+        }
+        j.accion = null;
+      });
+
+      document.getElementById("resultado").innerHTML += resultadoTexto;
+
+      const ganadores = jugadores.filter(j => j.posicion >= 9);
+      if (ganadores.length > 0) {
+        alert("¡Ganó: " + ganadores.map(j => j.nombre).join(", ") + "!");
+      }
+
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
